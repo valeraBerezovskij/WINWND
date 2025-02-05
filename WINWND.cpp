@@ -1,171 +1,108 @@
-#include "framework.h"
-#include "WINWND.h"
+// Файл WINDOWS.H содержит определения, макросы, и структуры 
+// которые используются при написании приложений под Windows. 
+#include <windows.h>
+#include <tchar.h>
 
-#define MAX_LOADSTRING 100
 
-// Global variables:
-HINSTANCE hInst;
-WCHAR szTitle[MAX_LOADSTRING];                  // Name of the title bar
-WCHAR szWindowClass[MAX_LOADSTRING];            // Name of the main window
+// прототип оконной процедуры
+LRESULT CALLBACK WindowProc(HWND, UINT, WPARAM, LPARAM);
 
-// Description of function prototypes:
-ATOM                MyRegisterClass(HINSTANCE hInstance);
-BOOL                InitInstance(HINSTANCE, int);
-LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
-INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
+TCHAR szClassWindow[] = TEXT("Каркасное приложение");	/* Имя класса окна */
 
-// Main main function
-int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
-    _In_opt_ HINSTANCE hPrevInstance,
-    _In_ LPWSTR    lpCmdLine,
-    _In_ int       nCmdShow)
+INT WINAPI _tWinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPTSTR lpszCmdLine, int nCmdShow)
 {
-    UNREFERENCED_PARAMETER(hPrevInstance);
-    UNREFERENCED_PARAMETER(lpCmdLine);
+	HWND hWnd;
+	MSG Msg;
+	WNDCLASSEX wcl;
 
-    // Initialization of global strings   
-    LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
-    LoadStringW(hInstance, IDC_WINWND, szWindowClass, MAX_LOADSTRING);
-    MyRegisterClass(hInstance);
 
-    // Application initialization
-    if (!InitInstance(hInstance, nCmdShow))
-    {
-        return FALSE;
-    }
+	// 1. Определение класса окна
+	wcl.cbSize = sizeof(wcl);	// размер структуры WNDCLASSEX
+	// Перерисовать всё окно, если изменён размер по горизонтали или по вертикали
+	wcl.style = CS_HREDRAW | CS_VREDRAW;	// CS (Class Style) - стиль класса окна
+	wcl.lpfnWndProc = WindowProc;	// адрес оконной процедуры
+	wcl.cbClsExtra = 0;		// используется Windows 
+	wcl.cbWndExtra = 0; 	// используется Windows 
+	wcl.hInstance = hInst;	// дескриптор данного приложения
+	wcl.hIcon = LoadIcon(NULL, IDI_APPLICATION);	// загрузка стандартной иконки
+	wcl.hCursor = LoadCursor(NULL, IDC_ARROW);	// загрузка стандартного курсора	
+	wcl.hbrBackground = (HBRUSH)GetStockObject(0);	// заполнение окна белым цветом
+	wcl.lpszMenuName = (LPCSTR)LoadMenu(hInst, "менюшка");	// приложение не содержит меню
+	wcl.lpszClassName = szClassWindow;	// имя класса окна
+	wcl.hIconSm = NULL;	// отсутствие маленькой иконки для связи с классом окна
 
-    HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_WINWND));
+	// 2. Регистрация класса окна
+	if (!RegisterClassEx(&wcl))
+		return 0; // при неудачной регистрации - выход
 
-    MSG msg;
+	// 3. Создание окна
+	// создается окно и  переменной hWnd присваивается дескриптор окна
+	hWnd = CreateWindowEx(
+		0,		// расширенный стиль окна
+		szClassWindow,	//имя класса окна
+		TEXT("Каркас Windows приложения"), // заголовок окна
+		WS_OVERLAPPEDWINDOW,				// стиль окна
+		/* Заголовок, рамка, позволяющая менять размеры, системное меню, кнопки развёртывания и свёртывания окна  */
+		CW_USEDEFAULT,	// х-координата левого верхнего угла окна
+		CW_USEDEFAULT,	// y-координата левого верхнего угла окна
+		CW_USEDEFAULT,	// ширина окна
+		CW_USEDEFAULT,	// высота окна
+		NULL,			// дескриптор родительского окна
+		NULL,			// дескриптор меню окна
+		hInst,		// идентификатор приложения, создавшего окно
+		NULL);		// указатель на область данных приложения
 
-    // Launch of the message processing loop for the window
-    while (GetMessage(&msg, nullptr, 0, 0))
-    {
-        if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
-        {
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
-        }
-    }
+	// 4. Отображение окна
+	ShowWindow(hWnd, nCmdShow);
+	UpdateWindow(hWnd); // перерисовка окна
 
-    return (int)msg.wParam;
+	// 5. Запуск цикла обработки сообщений
+	while (GetMessage(&Msg, NULL, 0, 0)) // получение очередного сообщения из очереди сообщений
+	{
+		TranslateMessage(&Msg);	// трансляция сообщения
+		DispatchMessage(&Msg);	// диспетчеризация сообщений
+	}
+	return Msg.wParam;
 }
 
-//  Registration of the window class
-//
-ATOM MyRegisterClass(HINSTANCE hInstance)
+LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 {
-    // Creating an object of class WNDCLASS (window object)
-    WNDCLASSEXW wcex;
+	int res;
 
-    // Filling in the structure
-    wcex.cbSize = sizeof(WNDCLASSEX);
+	TCHAR szWndStr1[32] = TEXT("Super text.");
+	TCHAR szWndStr2[32] = TEXT("I love bees");
+	TCHAR szWndStr3[32] = TEXT("TEXT TEXT TEXT!!");
 
-    wcex.style = CS_HREDRAW | CS_VREDRAW;
-    wcex.lpfnWndProc = WndProc;
-    wcex.cbClsExtra = 0;
-    wcex.cbWndExtra = 0;
-    wcex.hInstance = hInstance;
-    wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_WINWND));
-    wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
-    wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-    wcex.lpszMenuName = MAKEINTRESOURCEW(IDC_WINWND);
-    wcex.lpszClassName = szWindowClass;
-    wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
+	TCHAR szFinalMsg[32] = TEXT("Number of chars: ");
+	TCHAR szBuff[32];
+	const int nNumberWnds = 3;
 
-    // Registering the window in the OS
-    return RegisterClassExW(&wcex);
-}
+	int nNumber = (lstrlen(szWndStr1) + lstrlen(szWndStr2) + lstrlen(szWndStr2)) / nNumberWnds;
+	_itoa_s(nNumber, szBuff, 10);
 
-//   Saves the instance handle and creates the main window
-//
-//   In this function, we save the instance handle in a global variable,
-//   create and display the main window of the program
-//
-BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
-{
-    hInst = hInstance; // Saves the handle in a global variable
+	switch (uMessage)
+	{
+	case WM_SHOWWINDOW:
+		res = MessageBox(hWnd, szWndStr1, TEXT("window title"), MB_OK | MB_ICONINFORMATION);
+		if (res == IDOK) {
+			res = MessageBox(hWnd, szWndStr2, TEXT("AXAXXAXAX"), MB_OK | MB_ICONINFORMATION);
+		}
+		if (res == IDOK) {
+			res = MessageBox(hWnd, szWndStr3, TEXT("RESPECT"), MB_OK | MB_ICONINFORMATION);
+		}
+		MessageBox(hWnd, lstrcat(szFinalMsg, szBuff), TEXT("RESPECT"), MB_OK | MB_ICONINFORMATION);
 
-    // Creating the main window
-    HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-        CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
+		break;
+	case WM_DESTROY: // сообщение о завершении программы/*
+		//MessageBox(0, TEXT("HELLO WORLD"), TEXT("Окно сообщения"), MB_OK | MB_ABORTRETRYIGNORE);
+		PostQuitMessage(0); // посылка сообщения WM_QUIT
 
-    // Checking for correct creation
-    if (!hWnd)
-    {
-        return FALSE;
-    }
+		break;
+	default:
+		// все сообщения, которые не обрабатываются в данной оконной функции 
+		// направляются обратно Windows на обработку по умолчанию
 
-    // Displaying the window
-    ShowWindow(hWnd, nCmdShow);
-    UpdateWindow(hWnd);
-
-    return TRUE;
-}
-
-
-//  Processing messages of the main window.
-//
-//  WM_COMMAND  - processing of the application menu
-//  WM_PAINT    - draws the main window
-//  WM_DESTROY  - closing the window
-//
-LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-    switch (message)
-    {
-    case WM_COMMAND:
-    {
-        int wmId = LOWORD(wParam);
-        // Switch of window events
-        switch (wmId)
-        {
-            // Pressing about
-        case IDM_ABOUT:
-            DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
-            break;
-            // Closing the window
-        case IDM_EXIT:
-            DestroyWindow(hWnd);
-            break;
-        default:
-            return DefWindowProc(hWnd, message, wParam, lParam);
-        }
-    }
-    break;
-    case WM_PAINT:
-    {
-        PAINTSTRUCT ps;
-        HDC hdc = BeginPaint(hWnd, &ps);
-        EndPaint(hWnd, &ps);
-    }
-    break;
-    // Closing the window
-    case WM_DESTROY:
-        PostQuitMessage(0);
-        break;
-    default:
-        return DefWindowProc(hWnd, message, wParam, lParam);
-    }
-    return 0;
-}
-
-// Function handler for the about window
-INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
-{
-    UNREFERENCED_PARAMETER(lParam);
-    switch (message)
-    {
-    case WM_INITDIALOG:
-        return (INT_PTR)TRUE; // Handler for initializing the dialog window
-
-    case WM_COMMAND:
-        if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
-        {
-            EndDialog(hDlg, LOWORD(wParam)); // Closing the dialog window
-            return (INT_PTR)TRUE;
-        }
-        break;
-    }
-    return (INT_PTR)FALSE; // Executes if the message is not processed in the switch
+		return DefWindowProc(hWnd, uMessage, wParam, lParam);
+	}
+	return 0;
 }
