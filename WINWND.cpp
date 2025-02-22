@@ -1,13 +1,12 @@
-// Файл WINDOWS.H содержит определения, макросы, и структуры 
-// которые используются при написании приложений под Windows. 
 #include <windows.h>
 #include <tchar.h>
+#include"Resource.h"
 
-
-// прототип оконной процедуры
 LRESULT CALLBACK WindowProc(HWND, UINT, WPARAM, LPARAM);
 
-TCHAR szClassWindow[] = TEXT("Каркасное приложение");	/* Имя класса окна */
+TCHAR szClassWindow[] = TEXT("Каркасное приложение");
+HCURSOR hCursor1, hCursor2, hCursor3, hCursor4, hCursor5, hCursor6;
+HICON hIcon;
 
 INT WINAPI _tWinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPTSTR lpszCmdLine, int nCmdShow)
 {
@@ -16,92 +15,96 @@ INT WINAPI _tWinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPTSTR lpszCmdLine, i
 	WNDCLASSEX wcl;
 
 
-	// 1. Определение класса окна
-	wcl.cbSize = sizeof(wcl);	// размер структуры WNDCLASSEX
-	// Перерисовать всё окно, если изменён размер по горизонтали или по вертикали
-	wcl.style = CS_HREDRAW | CS_VREDRAW;	// CS (Class Style) - стиль класса окна
-	wcl.lpfnWndProc = WindowProc;	// адрес оконной процедуры
-	wcl.cbClsExtra = 0;		// используется Windows 
-	wcl.cbWndExtra = 0; 	// используется Windows 
-	wcl.hInstance = hInst;	// дескриптор данного приложения
-	wcl.hIcon = LoadIcon(NULL, IDI_APPLICATION);	// загрузка стандартной иконки
-	wcl.hCursor = LoadCursor(NULL, IDC_ARROW);	// загрузка стандартного курсора	
-	wcl.hbrBackground = (HBRUSH)GetStockObject(0);	// заполнение окна белым цветом
-	wcl.lpszMenuName = (LPCSTR)LoadMenu(hInst, "менюшка");	// приложение не содержит меню
-	wcl.lpszClassName = szClassWindow;	// имя класса окна
-	wcl.hIconSm = NULL;	// отсутствие маленькой иконки для связи с классом окна
+	wcl.cbSize = sizeof(wcl);
+	wcl.style = CS_HREDRAW | CS_VREDRAW;
+	wcl.lpfnWndProc = WindowProc;
+	wcl.cbClsExtra = 0;
+	wcl.cbWndExtra = 0;
+	wcl.hInstance = hInst;
+	wcl.hIcon = LoadIcon(NULL, IDI_APPLICATION);
+	wcl.hCursor = LoadCursor(NULL, MAKEINTRESOURCE(IDC_CURSOR1));
+	wcl.hbrBackground = (HBRUSH)GetStockObject(0);
+	wcl.lpszMenuName = (LPCSTR)LoadMenu(hInst, "менюшка");
+	wcl.lpszClassName = szClassWindow;
+	wcl.hIconSm = LoadIcon(hInst, MAKEINTRESOURCE(IDI_SMALL));
 
-	// 2. Регистрация класса окна
 	if (!RegisterClassEx(&wcl))
-		return 0; // при неудачной регистрации - выход
+		return 0;
 
-	// 3. Создание окна
-	// создается окно и  переменной hWnd присваивается дескриптор окна
 	hWnd = CreateWindowEx(
-		0,		// расширенный стиль окна
-		szClassWindow,	//имя класса окна
-		TEXT("Каркас Windows приложения"), // заголовок окна
-		WS_OVERLAPPEDWINDOW,				// стиль окна
-		/* Заголовок, рамка, позволяющая менять размеры, системное меню, кнопки развёртывания и свёртывания окна  */
-		CW_USEDEFAULT,	// х-координата левого верхнего угла окна
-		CW_USEDEFAULT,	// y-координата левого верхнего угла окна
-		CW_USEDEFAULT,	// ширина окна
-		CW_USEDEFAULT,	// высота окна
-		NULL,			// дескриптор родительского окна
-		NULL,			// дескриптор меню окна
-		hInst,		// идентификатор приложения, создавшего окно
-		NULL);		// указатель на область данных приложения
+		0,
+		szClassWindow,
+		TEXT("Каркас Windows приложения"),
+		WS_OVERLAPPEDWINDOW,
+		CW_USEDEFAULT,
+		CW_USEDEFAULT,
+		CW_USEDEFAULT,
+		CW_USEDEFAULT,
+		NULL,
+		NULL,
+		hInst,
+		NULL);
 
-	// 4. Отображение окна
 	ShowWindow(hWnd, nCmdShow);
-	UpdateWindow(hWnd); // перерисовка окна
+	UpdateWindow(hWnd);
 
-	// 5. Запуск цикла обработки сообщений
-	while (GetMessage(&Msg, NULL, 0, 0)) // получение очередного сообщения из очереди сообщений
+	while (GetMessage(&Msg, NULL, 0, 0))
 	{
-		TranslateMessage(&Msg);	// трансляция сообщения
-		DispatchMessage(&Msg);	// диспетчеризация сообщений
+		TranslateMessage(&Msg);
+		DispatchMessage(&Msg);
 	}
 	return Msg.wParam;
 }
 
 LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 {
-	int res;
-
-	TCHAR szWndStr1[32] = TEXT("Super text.");
-	TCHAR szWndStr2[32] = TEXT("I love bees");
-	TCHAR szWndStr3[32] = TEXT("TEXT TEXT TEXT!!");
-
-	TCHAR szFinalMsg[32] = TEXT("Number of chars: ");
-	TCHAR szBuff[32];
-	const int nNumberWnds = 3;
-
-	int nNumber = (lstrlen(szWndStr1) + lstrlen(szWndStr2) + lstrlen(szWndStr2)) / nNumberWnds;
-	_itoa_s(nNumber, szBuff, 10);
-
+	HINSTANCE hInstance = GetModuleHandle(0);
+	int x;
+	int y;
 	switch (uMessage)
 	{
-	case WM_SHOWWINDOW:
-		res = MessageBox(hWnd, szWndStr1, TEXT("window title"), MB_OK | MB_ICONINFORMATION);
-		if (res == IDOK) {
-			res = MessageBox(hWnd, szWndStr2, TEXT("AXAXXAXAX"), MB_OK | MB_ICONINFORMATION);
+	case WM_CREATE:
+	{
+		hCursor1 = LoadCursor(hInstance, MAKEINTRESOURCE(IDC_CURSOR1));
+		hCursor2 = LoadCursor(hInstance, MAKEINTRESOURCE(IDC_CURSOR2));
+		hCursor3 = LoadCursor(hInstance, MAKEINTRESOURCE(IDC_CURSOR3));
+		hCursor4 = LoadCursor(hInstance, MAKEINTRESOURCE(IDC_CURSOR4));
+		hCursor5 = LoadCursor(hInstance, MAKEINTRESOURCE(IDC_CURSOR5));
+		hCursor6 = LoadCursor(hInstance, MAKEINTRESOURCE(IDC_CURSOR6)); //def
+
+		//hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_SMALL));
+	}
+	break;
+	case WM_MOUSEMOVE:
+		RECT rect;
+		GetClientRect(hWnd, &rect);
+		x = LOWORD(lParam);
+		y = HIWORD(lParam);
+		if (x <= rect.right * 0.25 && y <= rect.bottom * 0.25) {
+			SetCursor(hCursor1);
 		}
-		if (res == IDOK) {
-			res = MessageBox(hWnd, szWndStr3, TEXT("RESPECT"), MB_OK | MB_ICONINFORMATION);
+		else if (x >= rect.right * 0.75 && y <= rect.bottom * 0.25) {
+			SetCursor(hCursor2);
 		}
-		MessageBox(hWnd, lstrcat(szFinalMsg, szBuff), TEXT("RESPECT"), MB_OK | MB_ICONINFORMATION);
+		else if ((x >= rect.right * 0.4 && x <= rect.right * 0.6) &&
+				 (y >= rect.bottom * 0.4 && y <= rect.bottom * 0.6)) {
+			SetCursor(hCursor3);
+		}
+		else if (x <= rect.right * 0.25 && y >= rect.bottom * 0.75) {
+			SetCursor(hCursor4);
+		}
+		else if (x >= rect.right * 0.75 && y >= rect.bottom * 0.75) {
+			SetCursor(hCursor5);
+		}
+		else {
+			SetCursor(hCursor6);
+		}
 
 		break;
-	case WM_DESTROY: // сообщение о завершении программы/*
-		//MessageBox(0, TEXT("HELLO WORLD"), TEXT("Окно сообщения"), MB_OK | MB_ABORTRETRYIGNORE);
-		PostQuitMessage(0); // посылка сообщения WM_QUIT
-
+	case WM_DESTROY:
+		PostQuitMessage(0);
 		break;
 	default:
-		// все сообщения, которые не обрабатываются в данной оконной функции 
-		// направляются обратно Windows на обработку по умолчанию
-
 		return DefWindowProc(hWnd, uMessage, wParam, lParam);
 	}
 	return 0;

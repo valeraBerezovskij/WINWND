@@ -139,8 +139,17 @@
     <ResourceCompile Include="WINWND.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="..\..\..\Desktop\schedule_icon_264140.ico" />
     <Image Include="small.ico" />
     <Image Include="WINWND.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\Desktop\aero_arrow.cur" />
+    <None Include="..\..\..\Desktop\aero_link.cur" />
+    <None Include="..\..\..\Desktop\aero_pen.cur" />
+    <None Include="..\..\..\Desktop\Blue Vista SIMPLE.cur" />
+    <None Include="..\..\..\Desktop\normal.cur" />
+    <None Include="..\..\..\Desktop\pointer.cur" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

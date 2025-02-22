@@ -45,5 +45,28 @@
     <Image Include="WINWND.ico">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="..\..\..\Desktop\schedule_icon_264140.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\Desktop\pointer.cur">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\..\..\Desktop\Blue Vista SIMPLE.cur">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\..\..\Desktop\aero_arrow.cur">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\..\..\Desktop\aero_link.cur">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\..\..\Desktop\aero_pen.cur">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\..\..\Desktop\normal.cur">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
